@@ -6,12 +6,13 @@ import requests
 import os
 
 
-def log(title, url, description, file_name):
+def log(title, url, description, file_name, new_row):
     loguru.logger.debug("Title: {title}", title=title)
     loguru.logger.debug("Description: {title}", title=description)
-    new_row = title + '|' + url + '|' + description + '|' + file_name + '\n'
     loguru.logger.debug(new_row)
-    return new_row
+
+def get_new_row(title, url, description, file_name):
+	return new_row = title + '|' + url + '|' + description + '|' + file_name + '\n'
 
 
 def download_episode(url, title):
@@ -25,10 +26,12 @@ def download_episode(url, title):
         r = requests.get(url, allow_redirects=True)
         open(file_name, 'wb').write(r.content)
         description = parse_episode(file_name).rstrip()
-        new_row = log(title, url, description, file_name)
+        log(title, url, description, file_name)
+        new_row = get_new_row(title, url, description, file_name)
         return new_row
     description = parse_episode(file_name).rstrip()
-    new_row = log(title, url, description, file_name)
+    log(title, url, description, file_name)
+    new_row = get_new_row(title, url, description, file_name)
     return new_row
 
 
