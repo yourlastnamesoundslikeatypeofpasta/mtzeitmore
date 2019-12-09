@@ -1,0 +1,5 @@
+art==4.3
+colorful==0.5.4
+loguru==0.4.0
+requests==2.22.0
+
