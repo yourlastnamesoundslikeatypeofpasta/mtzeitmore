@@ -3,12 +3,15 @@ import colorful
 import csv
 import loguru
 import requests
+import os
 
 
 def download_episode(url, title):
     split_name = url.rsplit('/', 1)
     file_name = 'htm/' + split_name[-1]
     r = requests.get(url, allow_redirects=True)
+    if not os.path.exists('htm/'):
+        os.mkdir('htm/')
     open(file_name, 'wb').write(r.content)
     # description = parse_episode(file_name)
     description = parse_episode(file_name).rstrip()
