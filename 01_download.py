@@ -6,20 +6,31 @@ import requests
 import os
 
 
-def download_episode(url, title):
-    split_name = url.rsplit('/', 1)
-    file_name = 'htm/' + split_name[-1]
-    r = requests.get(url, allow_redirects=True)
-    if not os.path.exists('htm/'):
-        os.mkdir('htm/')
-    open(file_name, 'wb').write(r.content)
-    # description = parse_episode(file_name)
-    description = parse_episode(file_name).rstrip()
+def log(title, url, description, file_name):
     loguru.logger.debug("Title: {title}", title=title)
     loguru.logger.debug("Description: {title}", title=description)
     new_row = title + '|' + url + '|' + description + '|' + file_name + '\n'
     loguru.logger.debug(new_row)
     return new_row
+
+
+def download_episode(url, title):
+    if not os.path.exists('htm/'):
+        os.mkdir('htm/')
+
+    split_name = url.rsplit('/', 1)
+    file_name = 'htm/' + split_name[-1]
+
+    if not os.path.exists(file_name):
+        r = requests.get(url, allow_redirects=True)
+        open(file_name, 'wb').write(r.content)
+        description = parse_episode(file_name).rstrip()
+        new_row = log(title, url, description, file_name)
+        return new_row
+    description = parse_episode(file_name).rstrip()
+    new_row = log(title, url, description, file_name)
+    return new_row
+
 
 
 def explore_episodes():
@@ -33,10 +44,14 @@ def explore_episodes():
     input_file = csv.DictReader(open("tdz-episodes.psv"), delimiter="|")
     for row in input_file:
         title = row['Title']
+        if '|' in title:
+            new_title = title.replace('|', '')
+            title = new_title
         url = row['URL']
         new_row = download_episode(url, title)
         with open('output.csv', 'a+') as f:
             f.write(new_row)
+
 
 
 def parse_episode(file_name):
@@ -54,6 +69,9 @@ def get_description(data):
         if key_starter in line:
             split_up = line.split('"')
             description_text = split_up[3]
+            if '|' in description_text:
+                new_description_text = description_text.replace('|', '')
+                description_text = new_description_text
     return description_text
 
 
